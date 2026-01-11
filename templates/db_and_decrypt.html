@@ -107,7 +107,7 @@
                     {% csrf_token %}
                     <div class="col-12">
                         <label for="image_id">Decrypt Image by ID</label>
-                        <input type="text" name="image_id" id="image_id" placeholder="Enter the ID" required>
+                        <input type="number" name="image_id" id="image_id" placeholder="Enter the ID" required min="1">
                     </div>
                     <div class="col-12">
                         <label for="aes_key">AES Key</label>

@@ -38,12 +38,29 @@ def decrypt_image(request):
         if not image_id:
             return JsonResponse({'error': 'Image ID is required.'})
 
+        # Validate and convert image_id to integer
+        try:
+            image_id = int(image_id)
+        except (ValueError, TypeError):
+            return JsonResponse({'error': f'Invalid Image ID. Expected a number but got "{image_id}".'})
+
         try:
             encrypted_image_record = EncryptedImage.objects.get(id=image_id)
         except EncryptedImage.DoesNotExist:
             return JsonResponse({'error': 'Encrypted image not found.'})
+
         try:
             binary_aes_key = aes_key.encode('utf-8')  # Converts the string to binary format (bytes)
+
+            # Validate AES key length (must be 16, 24, or 32 bytes)
+            if len(binary_aes_key) not in [16, 24, 32]:
+                # Adjust key to 32 bytes (AES-256) - pad or truncate as needed
+                if len(binary_aes_key) < 32:
+                    # Pad with zeros to reach 32 bytes
+                    binary_aes_key = binary_aes_key + b'\0' * (32 - len(binary_aes_key))
+                else:
+                    # Truncate to 32 bytes
+                    binary_aes_key = binary_aes_key[:32]
         except Exception as e:
             return JsonResponse({'error': f"Invalid AES Key: {e}"})
 
